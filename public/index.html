@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mural de Recados Fofo 🌸</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@400;600&display=swap');
+
+    body {
+      background-color: #fce4ec;
+      background-image: radial-gradient(#f8bbd0 1px, transparent 1px);
+      background-size: 20px 20px;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: #ad1457;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px #fff;
+    }
+
+    .form-box {
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 40px;
+    }
+
+    input, textarea, select, button {
+      padding: 12px;
+      border: 2px solid #f8bbd0;
+      border-radius: 12px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    button {
+      background-color: #ec407a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .mural {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 1000px;
+    }
+
+    .postit {
+      width: 180px;
+      height: 180px;
+      padding: 20px;
+      border-radius: 5px 5px 25px 5px;
+      box-shadow: 5px 10px 15px rgba(0,0,0,0.1);
+      font-family: 'Caveat', cursive;
+      font-size: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transform: rotate(-2deg);
+      transition: transform 0.2s;
+    }
+
+    .postit:nth-child(even) {
+      transform: rotate(3deg);
+    }
+
+    .postit:hover {
+      transform: scale(1.1) rotate(0deg);
+      z-index: 10;
+    }
+
+    .postit .autor {
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    /* Cores dos Post-its */
+    .pink { background-color: #ff80ab; color: #4a001f; }
+    .yellow { background-color: #ffee58; color: #3e2723; }
+    .blue { background-color: #80d8ff; color: #002171; }
+    .green { background-color: #b9f6ca; color: #004d40; }
+  </style>
+</head>
+<body>
+
+  <h1>🌸 Mural de Recados Fofo 🌸</h1>
+
+  <div class="form-box">
+    <input type="text" id="autor" placeholder="Seu nome / apelido">
+    <textarea id="mensagem" placeholder="Escreva seu recadinho fofo..."></textarea>
+    <select id="cor">
+      <option value="pink">💖 Rosa</option>
+      <option value="yellow">💛 Amarelo</option>
+      <option value="blue">💙 Azul</option>
+      <option value="green">💚 Verde</option>
+    </select>
+    <button onclick="enviarRecado()">Fixar Post-it ✨</button>
+  </div>
+
+  <div class="mural" id="mural"></div>
+
+  <script>
+    const API_URL = '/api/recados';
+
+    async function carregarRecados() {
+      const res = await fetch(API_URL);
+      const recados = await res.json();
+      const mural = document.getElementById('mural');
+      mural.innerHTML = '';
+
+      recados.forEach(r => {
+        const div = document.createElement('div');
+        div.className = `postit ${r.cor || 'yellow'}`;
+        div.innerHTML = `
+          <div>${r.mensagem}</div>
+          <div class="autor">~ ${r.autor}</div>
+        `;
+        mural.appendChild(div);
+      });
+    }
+
+    async function enviarRecado() {
+      const autor = document.getElementById('autor').value;
+      const mensagem = document.getElementById('mensagem').value;
+      const cor = document.getElementById('cor').value;
+
+      if (!autor || !mensagem) {
+        alert('Preencha seu nome e a mensagem!');
+        return;
+      }
+
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autor, mensagem, cor })
+      });
+
+      document.getElementById('autor').value = '';
+      document.getElementById('mensagem').value = '';
+      carregarRecados();
+    }
+
+    carregarRecados();
+  </script>
+</body>
+</html>
